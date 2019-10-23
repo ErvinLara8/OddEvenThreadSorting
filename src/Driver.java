@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class Driver {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
 
         Scanner in = new Scanner(System.in);
 
@@ -22,10 +22,12 @@ public class Driver {
          * Creating a arraylist of the user desired size filled with random numbers
          */
         Random r = new Random();
-        ArrayList <Integer> numbers = new ArrayList<>();
-        for (int i = 0; i < arrayLength; i++) {
-            Integer rand = r.nextInt(50);
-            numbers.add(rand);
+        ArrayList<Integer> numbers = new ArrayList<>();
+        while (numbers.size() != arrayLength) {
+            Integer rand = r.nextInt(arrayLength + 10);
+            if(!numbers.contains(rand)){
+                numbers.add(rand);
+            }
         }
 
 
@@ -42,18 +44,18 @@ public class Driver {
         /**
          * Variables that determine the functionality of the sorting
          */
-        int sortingLength = arrayLength/numThreads; //determines the length that each thread will deal with
+        int sortingLength = arrayLength / numThreads; //determines the length that each thread will deal with
         int start; //starting index
         int end; //ending index
         boolean inOrder = false; //boolean that will determine when the program finishes
         boolean even = false; //boolean that determines if the next shift is an even or an odd shift
-        ArrayList <Integer> orderedNumbers = new ArrayList<>(); //Array list that will be the end result organised
+        ArrayList<Integer> orderedNumbers = new ArrayList<>(); //Array list that will be the end result organised
         int currentStart;//stating index to copy the results
         int currentEnd;//ending index to copy the results
 
 
         System.out.println();
-        System.out.printf("%-15s %s %n %n" ,"Given Array:" , numbers);
+        System.out.printf("%-15s %s %n %n", "Given Array:", numbers);
 
 
         /**
@@ -65,12 +67,12 @@ public class Driver {
              * if were at an odd shift the start index is zero and the end index is the sorting length
              * else if its an even index, start is -1 and end is one less than the sorting length
              */
-            if(!even){
+            if (!even) {
                 start = 0;
                 end = sortingLength;
-            }else{
+            } else {
                 start = -1;
-                end = sortingLength-1;
+                end = sortingLength - 1;
             }
 
             /**
@@ -88,7 +90,10 @@ public class Driver {
              * loop that starts each thread
              */
             for (int i = 0; i < numThreads; i++) {
-                toolBox[i].run();
+
+                if (!toolBox[i].chekOrder()) {
+                    toolBox[i].run();
+                }
             }
 
             /**
@@ -96,7 +101,9 @@ public class Driver {
              */
             try {
                 for (int i = 0; i < numThreads; i++) {
-                    toolBox[i].join();
+                    if (!toolBox[i].chekOrder()) {
+                        toolBox[i].join();
+                    }
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -110,24 +117,24 @@ public class Driver {
 
                 //if we're at the first thread and the starting index is 1, currentStart is 0
                 //else current start is the starting index if of the current thread
-                if (i == 0 && toolBox[i].getStart() == 1 ) {
+                if (i == 0 && (toolBox[i].getStart() == 1 ||toolBox[i].getStart() == -1) ) {
                     currentStart = 0;
-                }else{
+                } else {
                     currentStart = toolBox[i].getStart();
                 }
 
                 //if we're at the last thread and the ending index is not the size of the array, currentEnd is the length of the array
                 //else current end is the ending index if of the current thread
-                if (i == (numThreads-1) && toolBox[i].getEnd() != arrayLength ) {
+                if (i == (numThreads - 1) && toolBox[i].getEnd() != arrayLength) {
                     currentEnd = arrayLength;
-                }else{
+                } else {
                     currentEnd = toolBox[i].getEnd();
                 }
 
                 //creating list object to hold the substring of the current ArrayList in the current thread
-                List <Integer> sub = toolBox[i].getGivenNums().subList(currentStart,currentEnd);
+                List<Integer> sub = toolBox[i].getGivenNums().subList(currentStart, currentEnd);
                 //converting that list to an ArrayList
-                ArrayList<Integer> arraySub= new ArrayList<>(sub);
+                ArrayList<Integer> arraySub = new ArrayList<>(sub);
                 //adding that sub ArrayList to the organised ArrayList
                 orderedNumbers.addAll(arraySub);
             }
@@ -136,12 +143,12 @@ public class Driver {
              * Printing results depending on the current type of shift
              * and then also changing the type of shift
              */
-            if(!even){
-                System.out.printf("%-15s %s %n" ,"Odd Shift:" , orderedNumbers);
+            if (!even) {
+                System.out.printf("%-15s %s %n", "Odd Shift:", orderedNumbers);
                 System.out.println("--------------------------------------------------------------------------------------------");
                 even = true;
-            }else{
-                System.out.printf("%-15s %s %n" ,"Even Shift:" ,orderedNumbers );
+            } else {
+                System.out.printf("%-15s %s %n", "Even Shift:", orderedNumbers);
                 System.out.println("--------------------------------------------------------------------------------------------");
                 even = false;
             }
@@ -161,13 +168,13 @@ public class Driver {
         }
 
         System.out.println();
-        System.out.printf("%-15s %s %n %n" ,"Results:" , orderedNumbers);
+        System.out.printf("%-15s %s %n %n", "Results:", orderedNumbers);
         System.out.println();
         int totalTime = 0;
         System.out.println("Time Unit Stats:");
         System.out.println("-----------------");
-        for (int i = 0; i < numThreads ; i++) {
-            System.out.println("Thread " +(i+1) +": " + toolBox[i].getTimeUnits());
+        for (int i = 0; i < numThreads; i++) {
+            System.out.println("Thread " + (i + 1) + ": " + toolBox[i].getTimeUnits());
             totalTime += toolBox[i].getTimeUnits();
         }
         System.out.println();

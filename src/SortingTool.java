@@ -27,6 +27,8 @@ public class SortingTool extends Thread{
      */
     public void run() {
 
+        //incrementing timeUnits
+        timeUnits ++;
         //if the starting index is -1 convert it to 1
         if(start == -1) {
             start = 1;
@@ -43,7 +45,7 @@ public class SortingTool extends Thread{
             if (first > second) {
                 this.givenNums.set(i, second);
                 this.givenNums.set(i + 1, first);
-                timeUnits ++;
+
             }
             //if statement to check were not stepping our of bound
             if ((i + 2) >= this.givenNums.size()) {
@@ -78,5 +80,35 @@ public class SortingTool extends Thread{
 
     public int getTimeUnits() {
         return timeUnits;
+    }
+
+    public boolean chekOrder(){
+
+        boolean arereadyOrdered = false;
+
+        int fakeStart;
+
+        if(start == -1){
+            fakeStart = 0;
+        }
+        else{
+            fakeStart = start;
+        }
+
+        for (int i = fakeStart; i < end; i++) {
+
+            if(givenNums.get(i) < givenNums.get(i + 1)){
+                arereadyOrdered = true;
+            }
+            else{
+                arereadyOrdered = false;
+                break;
+            }
+
+            if((i+1) == (end-1)){
+                break;
+            }
+        }
+        return arereadyOrdered;
     }
 }
